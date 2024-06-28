@@ -1,10 +1,10 @@
 "use server";
 
-import { useCurrentUserRole } from "@/lib/auth";
+import { getCurrentUserRole } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
 
 export const admin = async () => {
-    const role = await useCurrentUserRole();
+    const role = await getCurrentUserRole();
     if (role !== UserRole.ADMIN) {
         return { error: "Forbidden Action" }
     }

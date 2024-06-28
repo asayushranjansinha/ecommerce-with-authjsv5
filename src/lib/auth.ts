@@ -10,9 +10,9 @@ import { Session } from 'next-auth';
  * @returns {Promise<Session['user'] | undefined>} A promise that resolves to the user 
  * object if the session exists, otherwise undefined.
  */
-export const useCurrentUser = async (): Promise<Session['user'] | undefined> => {
+export const getCurrentUser = async (): Promise<Session['user'] | undefined> => {
     const session = await auth();
-    console.log("util function: ", {session})
+    console.log("util function: ", { session })
     return session?.user;
 }
 
@@ -25,7 +25,7 @@ export const useCurrentUser = async (): Promise<Session['user'] | undefined> => 
  * @returns {Promise<string|undefined>} A promise that resolves to the user's role
  * if the session exists, otherwise undefined.
  */
-export const useCurrentUserRole = async (): Promise<Session['user']["role"] | undefined> => {
+export const getCurrentUserRole = async (): Promise<Session['user']["role"] | undefined> => {
     const session = await auth();
     return session?.user.role;
 }

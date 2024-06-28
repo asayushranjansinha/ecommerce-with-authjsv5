@@ -3,14 +3,14 @@ import prisma from "@/lib/db";
 import bcrypt from 'bcryptjs';
 import { getUserByEmail, getUserById } from "@/data/user";
 import { SettingsSchemaType } from "@/schemas";
-import { useCurrentUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { generateVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/mail/mail";
 import { unstable_update } from "@/auth";
 
 
 export const settings = async (values: SettingsSchemaType) => {
-    const user = await useCurrentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
         return { error: "Unauthorized!" }
