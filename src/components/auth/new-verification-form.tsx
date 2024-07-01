@@ -11,7 +11,7 @@ import CardWrapper from "@/components/auth/card-wrapper";
 import ErrorMessage from "@/components/error-message";
 
 // Actions
-import { newVerification } from "@/actions/new-verification";
+import { verifyUserEmail } from "@/actions/auth";
 
 export const NewVerificationForm = () => {
   const searchParams = useSearchParams();
@@ -21,37 +21,30 @@ export const NewVerificationForm = () => {
 
   const verificationAttempted = useRef<boolean>(false);
 
-  /**
-   * Initiates the token verification process. Ensures that token verification
-   * is only attempted once. If a token is missing, sets an error message.
-   * Calls the newVerification function with the provided token and handles the
-   * success or error response.
-   *
-   * @returns {void}
-   */
-  const initiateTokenVerification = useCallback(() => {
+  const handleTokenVerificationAttempt = useCallback(() => {
     //  Prevent attempting token verification to be called twice. This happens in development mode only.
 
     if (verificationAttempted.current) return;
     verificationAttempted.current = true;
 
     if (!token) {
-      setError("Missing token!");
+      setError(
+        "Invalid verification link. Please request a new link and try again."
+      );
       return;
     }
 
-    newVerification(token)
-      .then((data) => {
-        setSuccess(data?.success);
-        setError(data?.error);
-      })
-      .catch(() => {
-        setError("Something went wrong!");
-      });
+    verifyUserEmail(token).then((data) => {
+      if (data.status === "error") {
+        setError(data.message);
+      } else {
+        setSuccess(data.message);
+      }
+    });
   }, [token]);
 
   useEffect(() => {
-    initiateTokenVerification();
+    handleTokenVerificationAttempt();
   }, []);
 
   return (

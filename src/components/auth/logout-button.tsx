@@ -1,6 +1,6 @@
 "use client";
 
-import { logout } from "@/actions/logout-user";
+import { logoutAndRedirect } from "@/actions/auth";
 
 interface LogoutButtonProps {
   children: React.ReactNode;
@@ -8,8 +8,8 @@ interface LogoutButtonProps {
 
 export const LogoutButton = ({ children }: LogoutButtonProps) => {
   const onClick = () => {
-    console.log("logout triggered")
-    logout();
+    // console.log("logout triggered");
+    logoutAndRedirect();
   };
 
   return (

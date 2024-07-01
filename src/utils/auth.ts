@@ -12,7 +12,7 @@ import { Session } from 'next-auth';
  */
 export const getCurrentUser = async (): Promise<Session['user'] | undefined> => {
     const session = await auth();
-    console.log("util function: ", { session })
+    // console.log("util function: ", { session })
     return session?.user;
 }
 

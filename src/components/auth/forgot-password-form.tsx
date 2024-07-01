@@ -24,12 +24,12 @@ import {
 import { Input } from "@/components/ui/input";
 
 // Actions
-import { resetPassword } from "@/actions/reset";
+import { forgotPasswordAndSendEmail } from "@/actions/user";
 
-export const ResetForm = () => {
+export const ForgotPasswordForm = () => {
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | undefined>("");
-  const [success, setSuccess] = useState<string | undefined>("");
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
 
   const form = useForm<ResetPasswordSchemaType>({
     resolver: zodResolver(ResetSchema),
@@ -38,21 +38,19 @@ export const ResetForm = () => {
     },
   });
 
-  /**
-   * Initiates the password reset process by calling the reset action with the provided values.
-   * Sets error and success states based on the outcome of the reset attempt.
-   *
-   * @param {ResetPasswordSchemaType} values - The reset password values.
-   * @returns {void}
-   */
-  const initiateResetPassword = (values: ResetPasswordSchemaType) => {
-    setError("");
-    setSuccess("");
+  const handleForgotPasswordFormSubmission = (
+    values: ResetPasswordSchemaType
+  ) => {
+    setError(undefined);
+    setSuccess(undefined);
 
     startTransition(() => {
-      resetPassword(values).then((data) => {
-        setError(data?.error);
-        setSuccess(data?.success);
+      forgotPasswordAndSendEmail(values).then((data) => {
+        if (data.status === "error") {
+          setError(data.message);
+        } else {
+          setSuccess(data.message);
+        }
       });
     });
   };
@@ -65,7 +63,7 @@ export const ResetForm = () => {
       <Form {...form}>
         <form
           className="space-y-6"
-          onSubmit={form.handleSubmit(initiateResetPassword)}
+          onSubmit={form.handleSubmit(handleForgotPasswordFormSubmission)}
         >
           <div className="w-full space-y-4">
             <FormField

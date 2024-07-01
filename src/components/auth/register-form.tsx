@@ -5,9 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { IoEye, IoEyeOff } from "react-icons/io5";
+import { toast } from "sonner";
 
 // Actions
-import { registerNewUser } from "@/actions/register-new-user";
+import { registerNewUserWithCredentials } from "@/actions/auth";
 
 // Components
 import CardWrapper from "@/components/auth/card-wrapper";
@@ -23,6 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { ActionButton } from "@/components/action-button";
 
 // Schemas
 import { RegisterSchema, RegisterSchemaType } from "@/schemas";
@@ -54,10 +56,15 @@ export const RegisterForm = () => {
     setSuccess("");
 
     startTransition(() => {
-      registerNewUser(values)
+      registerNewUserWithCredentials(values)
         .then((data) => {
-          setError(data.error);
-          setSuccess(data.success);
+          if (data.status === "success") {
+            setSuccess(data.message);
+            toast.success(data.message);
+          } else {
+            setError(data.message);
+            toast.error(data.message);
+          }
         })
         .finally(() => {
           // TODO: Either navigate to login or hide success or error message
@@ -161,9 +168,13 @@ export const RegisterForm = () => {
           <ErrorMessage message={error} />
           <SuccessMessage message={success} />
 
-          <Button type="submit" className="w-full" disabled={isPending}>
-            Create an Account
-          </Button>
+          <ActionButton
+            loadingState={isPending}
+            type="submit"
+            className="w-full"
+          >
+            Create an account
+          </ActionButton>
         </form>
       </Form>
     </CardWrapper>

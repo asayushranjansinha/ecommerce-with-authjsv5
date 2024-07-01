@@ -20,8 +20,6 @@ export const getPasswordResetTokenByToken = async (token:string): Promise<Passwo
     }
 }
 
-
-
 /**
  * Retrieves the first password reset token associated with a given email from the database.
  *

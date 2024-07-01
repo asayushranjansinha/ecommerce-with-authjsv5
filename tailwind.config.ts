@@ -7,17 +7,24 @@ const config = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-	],
+  ],
   prefix: "",
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: "1rem",
       screens: {
         "2xl": "1400px",
       },
     },
     extend: {
+      backgroundImage: {
+        'radial-gradient-custom': 'radial-gradient(ellipse at top, var(--tw-gradient-stops))',
+      },
+      gradientColorStops: theme => ({
+        'sky-400': '#38bdf8',
+        'blue-800': '#1e3a8a',
+      }),
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

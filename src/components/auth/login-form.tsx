@@ -33,7 +33,9 @@ import {
 import { Input } from "@/components/ui/input";
 
 // Actions
-import { loginUser } from "@/actions/login-user";
+import { logInUserWithCredentials } from "@/actions/auth";
+import { ActionButton } from "@/components/action-button";
+import { toast } from "sonner";
 
 export const LoginForm = () => {
   const searchParams = useSearchParams();
@@ -45,11 +47,11 @@ export const LoginForm = () => {
   const callbackUrl = searchParams.get("callbackUrl");
 
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | undefined>("");
-  const [success, setSuccess] = useState<string | undefined>("");
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showTwoFactor, setShowTwoFactor] = useState<boolean>(false);
-  const [otpValue, setOtpValue] = useState<string>("");
+  const [otpValue, setOtpValue] = useState<string | undefined>();
 
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(LoginSchema),
@@ -90,22 +92,20 @@ export const LoginForm = () => {
     setSuccess("");
 
     startTransition(() => {
-      loginUser(values, callbackUrl)
-        .then((data) => {
-          if (data?.error) {
-            form.reset();
-            setError(data.error);
-          } else if (data?.success) {
-            form.reset();
-            setSuccess(data.success);
-          } else if (data?.twoFactor) {
-            setShowTwoFactor(true);
-            setOtpValue("");
-          }
-        })
-        .catch(() => {
-          setError("Something went wrong!");
-        });
+      logInUserWithCredentials(values, callbackUrl).then((data) => {
+        if (data?.status === "success") {
+          form.reset();
+          toast.success(data.message);
+          setSuccess(data.message);
+        } else if (data?.status === "error") {
+          form.reset();
+          toast.error(data.message);
+          setError(data.message);
+        } else if (data?.status === "twoFactor") {
+          setShowTwoFactor(true);
+          setOtpValue(undefined);
+        }
+      });
     });
   };
 
@@ -228,9 +228,13 @@ export const LoginForm = () => {
           <ErrorMessage message={error || urlError} />
           <SuccessMessage message={success} />
 
-          <Button type="submit" className="w-full" disabled={isPending}>
+          <ActionButton
+            loadingState={isPending}
+            type="submit"
+            className="w-full"
+          >
             {showTwoFactor ? "Confirm" : "Login"}
-          </Button>
+          </ActionButton>
         </form>
       </Form>
     </CardWrapper>

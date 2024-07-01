@@ -24,6 +24,7 @@ model User {
   updatedAt               DateTime               @updatedAt
   twoFactorConfirmationId String?
   TwoFactorConfirmation   TwoFactorConfirmation?
+  verificationToken       VerificationToken?
 }
 
 enum UserRole {
@@ -54,12 +55,13 @@ model Account {
 
 model VerificationToken {
   id      String   @id @default(cuid())
-  email   String
+  userId  String   @unique
+  email   String   @unique
   token   String   @unique
   expires DateTime
-
-  @@unique([email, token])
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+// TODO: implement email logic again
 
 model PasswordResetToken {
   id      String   @id @default(cuid())

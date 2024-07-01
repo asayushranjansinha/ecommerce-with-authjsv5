@@ -1,4 +1,5 @@
-import { transporter } from '@/lib/nodemailer';
+import { transporter } from '@/lib/mail';
+import { verificationEmailTemplate, passwordResetEmailTemplate, twoFactorEmailTemplate } from '@/mail/template';
 
 
 const domain = process.env.NEXT_PUBLIC_APP_URL;
@@ -19,18 +20,7 @@ export const sendVerificationEmail = async (email: string, token: string): Promi
             from: '"Ecommerce Support" <ayushranjan1277@gmail.com>',
             to: email,
             subject: "Verify Your Email Address",
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h1 style="color: #4a4a4a; text-align: center;">Email Verification</h1>
-                    <p style="color: #666; line-height: 1.5;">Thank you for registering. Please click the button below to verify your email address:</p>
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="${confirmLink}" style="background-color: #007bff; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Verify Email</a>
-                    </div>
-                    <p style="color: #666; line-height: 1.5;">If you didn't request this verification, please ignore this email.</p>
-                    <p style="color: #666; line-height: 1.5;">If the button doesn't work, you can also copy and paste the following link into your browser:</p>
-                    <p style="word-break: break-all; color: #007bff;">${confirmLink}</p>
-                </div>
-            `
+            html: verificationEmailTemplate(confirmLink)
         });
         console.log("Verification email sent successfully");
     } catch (error) {
@@ -51,24 +41,12 @@ export const sendVerificationEmail = async (email: string, token: string): Promi
  */
 export const sendPasswordResetEmail = async (email: string, token: string): Promise<void> => {
     const resetLink = `${domain}/auth/new-password?token=${token}`;
-
     try {
         await transporter.sendMail({
             from: '"Ecommerce Support" <ayushranjan1277@gmail.com>',
             to: email,
             subject: "Reset your password",
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h1 style="color: #4a4a4a; text-align: center;">Reset Password</h1>
-                    <p style="color: #666; line-height: 1.5;">Click below to reset your password:</p>
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="${resetLink}" style="background-color: #007bff; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset password</a>
-                    </div>
-                    <p style="color: #666; line-height: 1.5;">If you didn't request this reset password request, please ignore this email.</p>
-                    <p style="color: #666; line-height: 1.5;">If the button doesn't work, you can also copy and paste the following link into your browser:</p>
-                    <p style="word-break: break-all; color: #007bff;">${resetLink}</p>
-                </div>
-            `
+            html: passwordResetEmailTemplate(resetLink)
         });
         console.log("Password reset email sent successfully");
     } catch (error) {
@@ -92,23 +70,11 @@ export const sendTwoFactorEmail = async (email: string, token: string): Promise<
             from: '"Ecommerce Support" <ayushranjan1277@gmail.com>',
             to: email,
             subject: "Two Factor Authentication Code",
-            html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
-            <h1 style="color: #007bff; text-align: center; margin-bottom: 20px;">Your Two Factor Authentication Code</h1>
-            <p style="color: #4a4a4a; line-height: 1.6; text-align: center;">Use the following code to complete your login process. This code is valid for a limited time, so please use it promptly.</p>
-            <div style="text-align: center; margin: 30px 0;">
-                <p style="display: inline-block; background-color: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 24px; letter-spacing: 3px;">${token}</p>
-            </div>
-            <p style="color: #666; line-height: 1.6; text-align: center;">If you did not request this code, please ignore this email or contact support.</p>
-            <p style="color: #666; line-height: 1.6; text-align: center; margin-top: 20px;">Thank you, <br> The Ecommerce Support Team</p>
-        </div>
-        
-            `
+            html: twoFactorEmailTemplate(token)
         });
         console.log("Two Factor Authentication email sent successfully");
     } catch (error) {
         console.error("Error sending Two Factor Authentication email:", error);
         throw new Error("Failed to send Two Factor Authentication email");
     }
-
 }

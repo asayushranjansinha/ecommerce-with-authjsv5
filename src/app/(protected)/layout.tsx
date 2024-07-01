@@ -1,11 +1,15 @@
-import Navbar from "./navbar";
+import Navbar from "@/app/(protected)/navbar";
 
-const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
+interface ProtectedLayoutProps {
+  children: React.ReactNode;
+}
+const ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
   return (
-    <div className="min-h-screen w-full flex flex-col gap-y-10 items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-400 to-blue-800">
+    <div className="min-h-screen h-full w-full flex flex-col">
       <Navbar />
-      {children}
+      <div className="flex-grow container mx-auto py-8">{children}</div>
     </div>
   );
 };
+
 export default ProtectedLayout;

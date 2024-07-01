@@ -1,39 +1,45 @@
-import crypto from 'crypto';
 import prisma from '@/lib/db';
+import crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 
-import { getTwoFactorTokenByEmail } from '@/data/two-factor-token';
-import { getVerificationTokenByEmail } from '@/data/verification-token';
 import { getPasswordResetTokenByEmail } from '@/data/password-reset-token';
-import { PasswordResetToken } from '@prisma/client';
+import { getTwoFactorTokenByEmail } from '@/data/two-factor-token';
+import { getVerificationTokenByUserId } from '@/data/verification-token';
+import { PasswordResetToken, VerificationToken } from '@prisma/client';
 
 
 /**
- * Generates a new verification token for the specified email address.
- * If an existing token is found, it deletes the old token and creates a new one.
- * The token expires in 1 hour from the time of creation.
- * 
- * @param {string} email - The email address for which to generate the verification token.
- * @returns {Promise<{ email: string; token: string; expires: Date; }>} A promise that resolves to the newly created verification token.
- * @throws {Error} Throws an error if there is an issue generating the verification token.
+ * Generates a verification token for the given email and userId.
+ * The token will expire in 1 day (24 hours).
+ *
+ * @param {string} email - The email address to associate with the verification token.
+ * @param {string} userId - The ID of the user to associate with the verification token.
+ * @returns {Promise<VerificationToken>} A promise that resolves to the newly created verification token object.
  */
-export const generateVerificationToken = async (email: string) => {
+export const generateVerificationTokenWithEmailAndUserId = async (email: string, userId: string): Promise<VerificationToken> => {
+    // Generate verification token
     const token = uuidv4();
-    // Expires in 1 hour from now
-    const expires = new Date(new Date().getTime() + 3600 * 1000);
+    // Set token expiry time to be `1D`
+    const expires = new Date(new Date().getTime() + 24 * 3600 * 1000);
 
-    const existingToken = await getVerificationTokenByEmail(email);
+    // Check for existinng token in the database and delete if found
+    const existingToken = await getVerificationTokenByUserId(userId);
     if (existingToken) {
-        await prisma.verificationToken.delete({ where: { id: existingToken.id } })
+        await prisma.verificationToken.delete({
+            where: { id: existingToken.id },
+        });
     }
-    const newVerificationToken = await prisma.verificationToken.create({
+
+    // Insert new token in database
+    const verificationToken = await prisma.verificationToken.create({
         data: {
-            email,
             token,
+            email,
+            userId,
             expires,
         }
     });
-    return newVerificationToken;
+    return verificationToken;
 }
 
 /**

@@ -10,7 +10,7 @@ const poppins = Poppins({
 
 export default function Home() {
   return (
-    <main className="flex h-full flex-col items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-400 to-blue-800">
+    <div className="min-h-screen h-full flex items-center justify-center">
       <div className="space-y-6 text-center">
         <h1
           className={cn(
@@ -23,13 +23,13 @@ export default function Home() {
         <p className="text-white text-lg">A simple authentication service</p>
 
         <div className="">
-          <LoginButton mode="modal" asChild>
+          <LoginButton>
             <Button variant={"secondary"} size={"lg"}>
               Sign in
             </Button>
           </LoginButton>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

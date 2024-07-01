@@ -7,7 +7,7 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 
 // Actions
-import { newPassword } from "@/actions/new-password";
+import { updatePasswordUsingPasswordResetToken } from "@/actions/user";
 
 // Schema
 import { NewPasswordSchema, NewPasswordSchemaType } from "@/schemas";
@@ -26,14 +26,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 export const NewPasswordForm = () => {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | undefined>("");
-  const [success, setSuccess] = useState<string | undefined>("");
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
 
   const form = useForm<NewPasswordSchemaType>({
     resolver: zodResolver(NewPasswordSchema),
@@ -43,25 +44,21 @@ export const NewPasswordForm = () => {
     },
   });
 
-  /**
-   * Initiates the process of setting a new password. Validates the presence of a token,
-   * then calls the newPassword function with the provided values and token, updating the
-   *  'error' and 'success' states based on the outcome.
-   *
-   * @param {z.infer<typeof NewPasswordSchema>} values - The new password values.
-   * @returns {void}
-   */
-  const initiateSetNewPassword = (values: NewPasswordSchemaType) => {
-    if (!token) {
-      setError("Missing token!");
-      return;
-    }
-
+  const handlePasswordResetFormSubmission = (values: NewPasswordSchemaType) => {
     startTransition(() => {
-      newPassword(values, token).then((data) => {
-        setError(data?.error);
-        setSuccess(data?.success);
-      });
+      updatePasswordUsingPasswordResetToken(values, token)
+        .then((data) => {
+          if (data.status === "error") {
+            toast.error(data.message);
+            setError(data.message);
+          } else {
+            toast.success(data.message);
+            setSuccess(data.message);
+          }
+        })
+        .finally(() => {
+          form.reset();
+        });
     });
   };
 
@@ -74,7 +71,7 @@ export const NewPasswordForm = () => {
       <Form {...form}>
         <form
           className="space-y-6"
-          onSubmit={form.handleSubmit(initiateSetNewPassword)}
+          onSubmit={form.handleSubmit(handlePasswordResetFormSubmission)}
         >
           <div className="w-full space-y-4">
             <FormField

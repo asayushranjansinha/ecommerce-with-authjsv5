@@ -93,7 +93,6 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
         session.user.email = token.email;
         session.user.isOAuth = token.isOAuth;
       }
-      console.log({ session })
       return session;
     },
 
