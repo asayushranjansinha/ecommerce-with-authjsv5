@@ -20,7 +20,7 @@ export default function NotFoundPage() {
         OOPS!!!
       </h1>
       <p className="text-white text-lg">
-        Something went wrong. <br /> Page you are looking for either doesn't
+        Something went wrong. <br /> Page you are looking for either doesn&apos;t
         exist or has been moved.
       </p>
 
