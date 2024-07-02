@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
+import { SessionProvider as CustomSessionProvider } from "@/components/providers/session-provider";
 import { auth } from "@/auth";
 import { Toaster } from "sonner";
 
@@ -35,14 +36,16 @@ export default async function RootLayout({
   const session = await auth();
   return (
     <SessionProvider session={session}>
-      <html lang="en">
-        <body className={`${inter.className}`}>
-          <div className="h-full w-full bg-radial-gradient-custom from-sky-400 to-blue-800">
-            {children}
-            <Toaster />
-          </div>
-        </body>
-      </html>
+      <CustomSessionProvider propsData={session}>
+        <html lang="en">
+          <body className={`${inter.className}`}>
+            <div className="h-full w-full bg-radial-gradient-custom from-sky-400 to-blue-800">
+              {children}
+              <Toaster />
+            </div>
+          </body>
+        </html>
+      </CustomSessionProvider>
     </SessionProvider>
   );
 }

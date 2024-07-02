@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { updateUserSettings } from "@/actions/user";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -34,21 +34,28 @@ import SuccessMessage from "@/components/success-message";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { UserRole } from "@prisma/client";
 import { Switch } from "@/components/ui/switch";
+import { useCustomSession } from "@/components/providers/session-provider";
 
 const Settings = () => {
   const { update } = useSession();
-  const user = useCurrentUser();
+  const session = useCustomSession();
+  const user = session?.user;
+  const defaultValues = useMemo(
+    () => ({
+      name: user?.name || "",
+      email: user?.email || "",
+      password: "",
+      newPassword: "",
+      role: user?.role || "",
+      isTwoFactorEnabled: user?.isTwoFactorEnabled || false,
+    }),
+    [user]
+  );
 
   const form = useForm<SettingsSchemaType>({
     resolver: zodResolver(SettingsSchema),
-    defaultValues: {
-      name: user?.name || undefined,
-      email: user?.email || undefined,
-      password: undefined,
-      newPassword: undefined,
-      role: user?.role || undefined,
-      isTwoFactorEnabled: user?.isTwoFactorEnabled || undefined,
-    },
+    defaultValues,
+    mode: "onChange",
   });
 
   const [isPending, startTransition] = useTransition();
@@ -84,6 +91,18 @@ const Settings = () => {
     setShowNewPassword((prev) => !prev);
   };
 
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.name || "",
+        email: user.email || "",
+        role: user.role || UserRole.USER,
+        isTwoFactorEnabled: user.isTwoFactorEnabled || false,
+      });
+    }
+  }, [user, form]);
+
+  console.log({ user });
   return (
     <Card className="max-w-[600px] mx-auto">
       <CardHeader>
@@ -148,10 +167,10 @@ const Settings = () => {
                         <div className="relative">
                           <Input
                             disabled={isPending}
-                            {...field}
                             placeholder="******"
                             type={showPassword ? "text" : "password"}
                             className="pr-12"
+                            {...field}
                           />
                           <Button
                             size={"icon"}
@@ -186,10 +205,10 @@ const Settings = () => {
                         <div className="relative">
                           <Input
                             disabled={isPending}
-                            {...field}
                             placeholder="******"
                             type={showNewPassword ? "text" : "password"}
                             className="pr-12"
+                            {...field}
                           />
                           <Button
                             size={"icon"}
