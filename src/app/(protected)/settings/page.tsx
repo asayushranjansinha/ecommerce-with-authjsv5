@@ -1,23 +1,22 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { useEffect, useMemo, useState, useTransition } from "react";
 import { updateUserSettings } from "@/actions/user";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { useSession } from "next-auth/react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { SettingsSchema, SettingsSchemaType } from "@/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
   Form,
-  FormField,
   FormControl,
-  FormItem,
-  FormMessage,
-  FormLabel,
   FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,25 +27,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { useCurrentUser } from "@/hooks/use-current-user";
 import ErrorMessage from "@/components/error-message";
+import { useSession } from "@/components/providers/session-provider";
 import SuccessMessage from "@/components/success-message";
-import { IoEye, IoEyeOff } from "react-icons/io5";
-import { UserRole } from "@prisma/client";
 import { Switch } from "@/components/ui/switch";
-import { useCustomSession } from "@/components/providers/session-provider";
+import { UserRole } from "@prisma/client";
+import { IoEye, IoEyeOff } from "react-icons/io5";
 
 const Settings = () => {
-  const { update } = useSession();
-  const session = useCustomSession();
-  const user = session?.user;
+  const { session } = useSession();
+  let user = session?.user;
   const defaultValues = useMemo(
     () => ({
       name: user?.name || "",
       email: user?.email || "",
-      password: "",
-      newPassword: "",
-      role: user?.role || "",
+      password: undefined,
+      newPassword: undefined,
+      role: user?.role || UserRole.USER,
       isTwoFactorEnabled: user?.isTwoFactorEnabled || false,
     }),
     [user]
@@ -73,7 +70,6 @@ const Settings = () => {
         .then((data) => {
           if (data.status === "success") {
             setSuccess(data.message);
-            update();
           } else {
             setError(data.message);
           }

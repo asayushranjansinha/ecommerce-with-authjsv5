@@ -1,5 +1,5 @@
+import { useSession } from "@/components/providers/session-provider";
 import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
 
 /**
  * Custom hook to get the current user from the session.
@@ -10,7 +10,7 @@ import { useSession } from "next-auth/react";
  * @returns {Session['user']|undefined} The user object if the session exists, otherwise undefined.
  */
 export const useCurrentUser = (): Session['user'] | undefined => {
-    const { data: session } = useSession();
+    const { session } = useSession();
     return session?.user;
 };
 
@@ -24,6 +24,6 @@ export const useCurrentUser = (): Session['user'] | undefined => {
  * @returns {Session['user']["role"]|undefined} The user's role if the session exists, otherwise undefined.
  */
 export const useCurrentUserRole = (): Session['user']["role"] | undefined => {
-    const { data: session } = useSession();
+    const { session } = useSession();
     return session?.user?.role;
 };

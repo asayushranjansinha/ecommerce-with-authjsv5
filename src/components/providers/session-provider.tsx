@@ -1,37 +1,37 @@
 "use client";
 
-import React, { useContext } from "react";
-import { createContext, ReactNode, useEffect, useState } from "react";
+import { Session } from "next-auth";
+import { createContext, useContext } from "react";
 
-// Create context
-export const SessionContext = createContext<any>({});
+interface SessionContextType {
+  session: Session | null;
+}
+const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
-// provider
-export const SessionProvider = ({
+interface SessionProviderProps {
+  session: Session | null;
+  children: React.ReactNode;
+}
+
+const SessionProvider: React.FC<SessionProviderProps> = ({
+  session,
   children,
-  propsData,
-}: {
-  children: ReactNode;
-  propsData: any;
 }) => {
-  const [session, setSession] = useState({});
-
-  useEffect(() => {
-    async function fetchSession() {
-      setSession(propsData);
-    }
-    fetchSession();
-  }, [propsData]);
+  const contextValue = { session };
   return (
-    <SessionContext.Provider value={session}>
+    <SessionContext.Provider value={contextValue}>
       {children}
     </SessionContext.Provider>
   );
 };
 
-// hook to use session
-export const useCustomSession = () => {
-  const session = useContext(SessionContext);
-  return session;
-};
+function useCustomSession(): SessionContextType {
+  const context = useContext(SessionContext);
+  if (context === undefined) {
+    throw new Error("useSession must be used within a SessionProvider");
+  }
+  return context;
+}
+
+export { SessionProvider, useCustomSession as useSession };
 

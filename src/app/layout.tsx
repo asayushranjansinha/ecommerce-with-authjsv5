@@ -36,7 +36,7 @@ export default async function RootLayout({
   const session = await auth();
   return (
     <SessionProvider session={session}>
-      <CustomSessionProvider propsData={session}>
+      <CustomSessionProvider session={session}>
         <html lang="en">
           <body className={`${inter.className}`}>
             <div className="h-full w-full bg-radial-gradient-custom from-sky-400 to-blue-800">
